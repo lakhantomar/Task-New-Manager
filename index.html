@@ -1,0 +1,88 @@
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Task Manager</title>
+</head>
+<body>
+
+<h2>Register</h2>
+<input id="rname" placeholder="Name"><br><br>
+<input id="remail" placeholder="Email"><br><br>
+<input id="rpass" placeholder="Password"><br><br>
+<button onclick="register()">Register</button>
+
+<hr>
+
+<h2>Login</h2>
+<input id="lemail" placeholder="Email"><br><br>
+<input id="lpass" placeholder="Password"><br><br>
+<button onclick="login()">Login</button>
+
+<hr>
+
+<button onclick="getTasks()">Get Tasks</button>
+<pre id="output"></pre>
+
+<script>
+let token = "";
+
+// REGISTER
+async function register() {
+  const res = await fetch("http://localhost:5000/api/auth/register", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      name: document.getElementById("rname").value,
+      email: document.getElementById("remail").value,
+      password: document.getElementById("rpass").value
+    })
+  });
+
+  const data = await res.json();
+  alert(JSON.stringify(data));
+}
+
+// LOGIN
+async function login() {
+  const res = await fetch("http://localhost:5000/api/auth/login", {
+    method: "POST",
+    headers: {"Content-Type": "application/json"},
+    body: JSON.stringify({
+      email: document.getElementById("lemail").value,
+      password: document.getElementById("lpass").value
+    })
+  });
+
+  const data = await res.json();
+
+  console.log(data); // debug
+
+  if (data.token) {
+    token = data.token;
+    alert("Login successful ✅");
+  } else {
+    alert("Login failed ❌");
+  }
+}
+
+// GET TASKS
+async function getTasks() {
+
+  if (!token) {
+    alert("Pehle login karo ❌");
+    return;
+  }
+
+  const res = await fetch("http://localhost:5000/api/tasks", {
+    headers: {
+      Authorization: "Bearer " + token
+    }
+  });
+
+  const data = await res.json();
+  document.getElementById("output").innerText = JSON.stringify(data, null, 2);
+}
+</script>
+
+</body>
+</html>
